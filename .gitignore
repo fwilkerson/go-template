@@ -1,0 +1,9 @@
+# Build and test output
+/bin/
+*.test
+*.out
+coverage.*
+
+# Editor and local agent state
+.idea/
+.claude/settings.local.json
