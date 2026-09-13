@@ -9,7 +9,15 @@
       "Bash(go fix *)",
       "Bash(golangci-lint *)",
       "Bash(dprint *)",
-      "Bash(gofmt *)"
+      "Bash(gofmt *)",
+      "Bash(git add -A*)",
+      "Bash(git add --all*)",
+      "Bash(git commit -a *)",
+      "Bash(git commit -a)",
+      "Bash(git commit -am *)",
+      "Bash(git commit --all*)",
+      "Bash(git push --force *)",
+      "Bash(git push -f *)"
     ]
   },
   "hooks": {
