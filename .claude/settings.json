@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(just *)",
+      "Bash(go doc *)"
+    ],
+    "deny": [
+      "Bash(go test *)",
+      "Bash(go fix *)",
+      "Bash(golangci-lint *)",
+      "Bash(dprint *)",
+      "Bash(gofmt *)"
+    ]
+  }
+}
