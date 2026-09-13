@@ -11,5 +11,17 @@
       "Bash(dprint *)",
       "Bash(gofmt *)"
     ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/stop-check.sh"
+          }
+        ]
+      }
+    ]
   }
 }
