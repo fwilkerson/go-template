@@ -1,0 +1,16 @@
+version: "2"
+
+linters:
+  # errcheck, govet, ineffassign, staticcheck, unused
+  default: standard
+  enable:
+    - bodyclose
+    - errorlint
+    - nilerr
+  # modernize is not enabled: `go fix` runs the same analyzers
+  # pinned to the local toolchain, and GoLand reports them natively.
+
+formatters:
+  enable:
+    - gofumpt
+    - goimports
