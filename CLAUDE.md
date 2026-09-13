@@ -1,0 +1,3 @@
+# Project
+
+@.claude/template.md
