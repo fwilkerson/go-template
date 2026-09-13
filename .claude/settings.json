@@ -20,6 +20,11 @@
       "Bash(git push -f *)"
     ]
   },
+  "attribution": {
+    "commit": "",
+    "pr": "",
+    "sessionUrl": false
+  },
   "hooks": {
     "Stop": [
       {
