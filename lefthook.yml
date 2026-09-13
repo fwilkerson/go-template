@@ -1,0 +1,13 @@
+pre-commit:
+  piped: true # run in order, stop at the first failure
+  jobs:
+    - name: fmt
+      glob: "*.go"
+      run: golangci-lint fmt {staged_files}
+      stage_fixed: true
+    - name: fmt-markdown
+      glob: "*.md"
+      run: dprint fmt {staged_files}
+      stage_fixed: true
+    - name: check
+      run: just check
