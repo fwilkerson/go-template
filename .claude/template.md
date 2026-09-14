@@ -7,8 +7,9 @@
 - Verify APIs with `go doc <pkg> <symbol>` rather than from memory, especially anything added in recent Go releases.
 - `go fix` enforces most modern idioms. It cannot enforce these, so prefer them when writing new code:
   - `encoding/json/v2` for new JSON code (Go 1.27+); leave existing `encoding/json` code alone unless asked to migrate.
-  - The standard library `uuid` package instead of third-party UUID modules (Go 1.27+).
-  - Method and wildcard patterns on `http.ServeMux` with `r.PathValue` instead of a third-party router (Go 1.22+).
+  - Method and wildcard patterns on `http.ServeMux` with `r.PathValue` (Go 1.22+) and the standard library `uuid`
+    package (Go 1.27+). `internal/arch` requires `Routes` to take a `*http.ServeMux` and refuses third-party packages
+    named for one the standard library now has.
   - `cmp.Or` for fallback chains; `slices` and `maps` helpers instead of hand-written loops.
   - `errors.Join`, `context.WithCancelCause` and `context.Cause` when errors or cancellation reasons need to be combined
     or inspected.
@@ -19,8 +20,9 @@
 - Everything else under `internal/`, one package per feature holding its types, logic, storage, handlers and templates.
   A feature exposes `Routes(mux *http.ServeMux)` and `main` mounts it. `internal/web` is the shell: layout, static
   assets and middleware. A type two features need moves to a package named for the concept.
-- `internal/arch` is the test that decides which kinds of package may import which and which names are refused. Read it
-  before adding a package; extend it when the layout gains a rule.
+- `internal/arch` is the test that decides which kinds of package may import which, which package names are refused and
+  where the standard library must be used over a third-party module. Read it before adding a package or dependency;
+  extend it when the layout gains a rule.
 - Tests beside the code in an external `_test` package unless they need unexported access; fixtures in `testdata/`.
 - Checks over HTTP are `.http` requests with assertions beside the binary in `cmd/<name>/`, run by `just e2e` and by
   GoLand. Add a request there instead of calling the server by hand: it is the record of what was verified and keeps
