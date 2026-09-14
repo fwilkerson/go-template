@@ -1,9 +1,0 @@
-### Page
-GET {{host}}/
-
-> {%
-client.test("page", () => {
-    client.assert(response.status === 404, "wrong status");
-    client.assert(response.body.includes("Hello"), "body");
-});
-%}

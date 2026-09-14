@@ -1,22 +1,24 @@
 // Command dev is the repository's management tool. justfile recipes call it
-// for anything that needs more than a single command. Its subpackages hold
+// for anything that needs more than a single command. The standard commands
+// come from plumb; a project adds its own beside them. Its subpackages hold
 // the tests that keep the layout and the agent guidance to their rules; the
 // arch test keeps application code from importing any of it.
 //
 // Usage:
 //
-//	dev gencheck <pattern>...   fail when generated files are behind their sources
-//	dev vendor [-update] [-force]  report or refresh the vendored front-end assets
-//	dev e2e [-addr host:port] [file...]  run the .http checks beside the binary under cmd/
+//	dev gencheck <pattern>...              fail when generated files are behind their sources
+//	dev vendor [-update] [-force]          report or refresh the vendored front-end assets
+//	dev e2e [-addr host:port] [file...]    run the .http checks beside the binary under cmd/
 package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"os"
 	"os/signal"
+
+	"github.com/fwilkerson/plumb/devtool"
 )
 
 func main() {
@@ -29,19 +31,8 @@ func main() {
 	}
 }
 
-var errUsage = errors.New("usage: dev <gencheck|vendor|e2e> [args]")
-
 func run(ctx context.Context, args []string, stdout, stderr io.Writer) error {
-	if len(args) == 0 {
-		return errUsage
-	}
-	switch args[0] {
-	case "gencheck":
-		return gencheck(ctx, args[1:], stdout)
-	case "vendor":
-		return vendor(ctx, args[1:], stdout, stderr)
-	case "e2e":
-		return e2e(ctx, args[1:], stdout, stderr)
-	}
-	return fmt.Errorf("unknown command %q: %w", args[0], errUsage)
+	cmds := devtool.Standard()
+	// Project-specific commands go here: cmds["name"] = func(...) error { ... }
+	return devtool.Run(ctx, args, stdout, stderr, cmds)
 }

@@ -1,4 +1,6 @@
 github.com/a-h/templ v0.3.1020 h1:ypAT/L5ySWEnZ6Zft/5yfoWXYYkhFNvEFOeeqecg4tw=
 github.com/a-h/templ v0.3.1020/go.mod h1:A2DlK61v+K+NRoGnhmYbNYVmtYHcFO5/AisMvBdDxTM=
+github.com/fwilkerson/plumb v0.1.0 h1:ilr75ohl8olfdNMc/5C3SxeQix+On6HPR4r0PrAjZzs=
+github.com/fwilkerson/plumb v0.1.0/go.mod h1:IBDwXuC3pkutRLDrXF9elOm9as0EbOv+RQhXt5m4FPE=
 github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
 github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
