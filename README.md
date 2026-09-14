@@ -14,6 +14,7 @@ Tooling and agent setup for a solo Go project worked on with GoLand and Claude C
 | `cmd/server`, `internal/`        | Example app: thin `main` with its `.http` checks beside it, the `internal/greet` feature with its page, fragment and logic, the `internal/web` shell |
 | `internal/web/static/`           | Vendored htmx and Alpine with their versions in `vendor.json`, plus the Tailwind build from `tailwind.css`                                           |
 | `internal/arch`                  | Test that enforces the layout: which kinds of package may import which, and forbidden package names                                                  |
+| `internal/guidance`              | Test that keeps agent guidance small: a word budget for what Claude reads every turn, skill frontmatter, no shouting                                 |
 | `internal/cmd/dev`               | Management tool behind `just gen-check`, `just vendor` and `just e2e`; recipes stay single commands, logic lives here                                |
 | `.claude/settings.json`          | Allows `just` and `go doc`, denies the bare tools `just` wraps and `curl`, turns off commit attribution, registers the Stop hook                     |
 | `.claude/hooks/stop-check.sh`    | When Go files changed, runs `just fmt check` before Claude finishes and sends failures back to it                                                    |
@@ -42,6 +43,8 @@ Tooling and agent setup for a solo Go project worked on with GoLand and Claude C
   tarball and verify the registry's sha512. The report marks npm-sourced assets. A release younger than seven days is
   reported but not installed; `-force` overrides and `-cooldown` changes the age. Unauthenticated GitHub API calls are
   limited to 60 an hour; `GITHUB_TOKEN` lifts that.
+- **Agent guidance:** `internal/guidance` keeps CLAUDE.md and its imports under a word budget, checks each skill's
+  frontmatter and refuses shouting.
 - **Agent feedback:** GoLand's MCP server (`lint_files`) while the IDE is open; the Stop hook otherwise.
 
 ## Machine setup (once)
