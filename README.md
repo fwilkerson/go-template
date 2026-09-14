@@ -9,7 +9,7 @@ Tooling and agent setup for a solo Go project worked on with GoLand and Claude C
 | `justfile`                         | The one set of task commands used by you, lefthook and Claude Code; `just gen` runs templ and Tailwind                                                                                                                                           |
 | `.golangci.yml`                    | Correctness linters (`standard` + `errorlint`, `bodyclose`, `nilerr`) and formatters (`gofumpt`, `goimports`)                                                                                                                                    |
 | `dprint.json`                      | Markdown formatting: 120-column lines, always wrapped                                                                                                                                                                                            |
-| `.gitattributes`                   | Marks generated and vendored files so GitHub collapses their diffs and skips them in language stats                                                                                                                                              |
+| `.gitattributes`                   | Marks generated and vendored files so GitHub collapses their diffs and skips them in language stats; keeps a project's README when it merges the template                                                                                        |
 | `lefthook.yml`                     | Pre-commit: format staged Go, templ and Markdown files, then `just check`                                                                                                                                                                        |
 | `cmd/server`, `internal/`          | Example app: thin `main` with its `.http` checks beside it, the `internal/greet` feature with its page, fragment and logic, the `internal/web` shell                                                                                             |
 | `internal/web/static/`             | Vendored htmx and Alpine with their versions in `vendor.json`, plus the Tailwind build from `tailwind.css`                                                                                                                                       |
@@ -56,15 +56,37 @@ Tooling and agent setup for a solo Go project worked on with GoLand and Claude C
 
 1. Install `golangci-lint`, `just`, `lefthook`, `templ` and the standalone `tailwindcss` CLI (managed with `prov`), and
    `dprint`. The `templ` CLI version must match the `github.com/a-h/templ` version in `go.mod`.
-2. GoLand: **Settings → Tools → Go Linter**: point it at the `golangci-lint` binary and enable using the project config
+2. `git config --global merge.ours.driver true`, so the `merge=ours` attribute keeps a project's README when it merges
+   the template. Without it the attribute is ignored and the README merges like any file.
+3. GoLand: **Settings → Tools → Go Linter**: point it at the `golangci-lint` binary and enable using the project config
    file.
-3. GoLand: **Settings → Tools → MCP Server → Clients Auto-Configuration**: Auto-Configure for Claude Code.
+4. GoLand: **Settings → Tools → MCP Server → Clients Auto-Configuration**: Auto-Configure for Claude Code.
 
 ## Project setup
 
-1. Copy everything except this README into the project.
-2. Set the module path in `go.mod` and rename `cmd/server` to the binary's name. Keep `internal/web` for a web app and
+Start the project from this repository's history rather than a copy, so later changes to the template arrive as an
+ordinary merge:
+
+```sh
+git init -b main <name> && cd <name>
+git remote add template git@github.com:fwilkerson/go-template.git
+git pull template main
+```
+
+Then, as one commit:
+
+1. Set the module path in `go.mod` and rename `cmd/server` to the binary's name. Keep `internal/web` for a web app and
    delete it otherwise; `internal/greet` is a placeholder for the first feature.
-3. Put the project's name and notes in `CLAUDE.md`, keeping the `@.claude/template.md` import.
-4. Install the git hooks with `lefthook install`. If git's `core.hooksPath` is set anywhere, lefthook refuses to sync;
+2. Replace this README with the project's own. Put the project's name and notes in `CLAUDE.md`, keeping the
+   `@.claude/template.md` import.
+3. Install the git hooks with `lefthook install`. If git's `core.hooksPath` is set anywhere, lefthook refuses to sync;
    `lefthook install --reset-hooks-path` clears the setting and installs.
+
+## Keeping up with the template
+
+- **Take template changes:** `git fetch template && git merge template/main`. Git merges against the commit the project
+  last took, so only files the project changed can conflict. The README is kept by attribute; `go.mod`'s module line is
+  the one to resolve by hand.
+- **Send a change back:** in the template, add the project as a remote and `git cherry-pick` the commit. A change to the
+  tooling itself goes to [plumb](https://github.com/fwilkerson/plumb), which every project and this template require;
+  `go get github.com/fwilkerson/plumb@latest` takes a new release.

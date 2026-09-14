@@ -4,3 +4,7 @@
 
 # Vendored assets: not the project's code.
 **/static/*.min.js linguist-vendored=true
+
+# A project's README replaces this one; keep it when merging the template.
+# Needs `git config --global merge.ours.driver true` (see README).
+README.md merge=ours
