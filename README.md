@@ -32,7 +32,8 @@ Tooling and agent setup for a solo Go project worked on with GoLand and Claude C
 - **Vendored assets:** `just vendor` resolves each entry in `vendor.json` against its source and `-update` installs
   newer releases. GitHub sources take the file from the repository at the latest release tag, verified by git blob hash,
   and record that hash. npm sources exist for projects that commit no built file (Alpine); they download the package
-  tarball and verify the registry's sha512. The report marks npm-sourced assets. Unauthenticated GitHub API calls are
+  tarball and verify the registry's sha512. The report marks npm-sourced assets. A release younger than seven days is
+  reported but not installed; `-force` overrides and `-cooldown` changes the age. Unauthenticated GitHub API calls are
   limited to 60 an hour; `GITHUB_TOKEN` lifts that.
 - **Agent feedback:** GoLand's MCP server (`lint_files`) while the IDE is open; the Stop hook otherwise.
 

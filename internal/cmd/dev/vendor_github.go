@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 )
 
 // githubSource takes a file from a repository at its latest release tag.
@@ -19,21 +20,22 @@ type githubSource struct {
 	api, repo, path string
 }
 
-func (g *githubSource) latest(ctx context.Context, client *http.Client) (string, string, error) {
+func (g *githubSource) latest(ctx context.Context, client *http.Client) (release, error) {
 	body, err := get(ctx, client, g.api+"/repos/"+g.repo+"/releases/latest", githubHeader())
 	if err != nil {
-		return "", "", err
+		return release{}, err
 	}
 	var rel struct {
-		TagName string `json:"tag_name"`
+		TagName     string    `json:"tag_name"`
+		PublishedAt time.Time `json:"published_at"`
 	}
 	if err := json.Unmarshal(body, &rel); err != nil {
-		return "", "", fmt.Errorf("decode release: %w", err)
+		return release{}, fmt.Errorf("decode release: %w", err)
 	}
-	if rel.TagName == "" {
-		return "", "", errors.New("release has no tag")
+	if rel.TagName == "" || rel.PublishedAt.IsZero() {
+		return release{}, errors.New("release has no tag or publish time")
 	}
-	return strings.TrimPrefix(rel.TagName, "v"), rel.TagName, nil
+	return release{Version: strings.TrimPrefix(rel.TagName, "v"), Ref: rel.TagName, Published: rel.PublishedAt}, nil
 }
 
 // fetch reads the file through the contents API at the tag and checks the

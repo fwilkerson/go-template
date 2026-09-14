@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"path"
 	"strings"
+	"time"
 )
 
 // npmSource takes a file out of the package tarball a dist-tag points at.
@@ -21,45 +22,56 @@ type npmSource struct {
 	registry, pkg, tag, file string
 }
 
-// npmRelease is the subset of a registry version document the tool uses.
-type npmRelease struct {
-	Version string `json:"version"`
-	Dist    struct {
-		Tarball   string `json:"tarball"`
-		Integrity string `json:"integrity"`
-	} `json:"dist"`
+// npmDist is where a registry version document says its tarball is.
+type npmDist struct {
+	Tarball   string `json:"tarball"`
+	Integrity string `json:"integrity"`
 }
 
-func (n *npmSource) latest(ctx context.Context, client *http.Client) (string, string, error) {
-	body, err := get(ctx, client, n.registry+"/"+n.pkg+"/"+n.tag, nil)
+// latest reads the full package document: the version-only document carries
+// no publish time, and the time map is what the cooldown needs.
+func (n *npmSource) latest(ctx context.Context, client *http.Client) (release, error) {
+	body, err := get(ctx, client, n.registry+"/"+n.pkg, nil)
 	if err != nil {
-		return "", "", err
+		return release{}, err
 	}
-	var rel npmRelease
-	if err := json.Unmarshal(body, &rel); err != nil {
-		return "", "", fmt.Errorf("decode registry response: %w", err)
+	var doc struct {
+		DistTags map[string]string `json:"dist-tags"`
+		Versions map[string]struct {
+			Dist npmDist `json:"dist"`
+		} `json:"versions"`
+		Time map[string]time.Time `json:"time"`
 	}
-	if rel.Version == "" || rel.Dist.Tarball == "" {
-		return "", "", errors.New("registry response has no version or tarball")
+	if err := json.Unmarshal(body, &doc); err != nil {
+		return release{}, fmt.Errorf("decode package document: %w", err)
+	}
+	version := doc.DistTags[n.tag]
+	if version == "" {
+		return release{}, fmt.Errorf("no dist-tag %q", n.tag)
+	}
+	dist := doc.Versions[version].Dist
+	published := doc.Time[version]
+	if dist.Tarball == "" || published.IsZero() {
+		return release{}, fmt.Errorf("version %s has no tarball or publish time", version)
 	}
 	// The tarball URL and integrity travel as the ref so fetch does not
 	// resolve the tag a second time.
-	ref, err := json.Marshal(rel)
-	return rel.Version, string(ref), err
+	ref, err := json.Marshal(dist)
+	return release{Version: version, Ref: string(ref), Published: published}, err
 }
 
 // fetch downloads the tarball, checks it against the registry's integrity
 // value and returns the one file.
 func (n *npmSource) fetch(ctx context.Context, client *http.Client, ref string) ([]byte, error) {
-	var rel npmRelease
-	if err := json.Unmarshal([]byte(ref), &rel); err != nil {
+	var dist npmDist
+	if err := json.Unmarshal([]byte(ref), &dist); err != nil {
 		return nil, err
 	}
-	tarball, err := get(ctx, client, rel.Dist.Tarball, nil)
+	tarball, err := get(ctx, client, dist.Tarball, nil)
 	if err != nil {
 		return nil, err
 	}
-	if err := verifyIntegrity(tarball, rel.Dist.Integrity); err != nil {
+	if err := verifyIntegrity(tarball, dist.Integrity); err != nil {
 		return nil, err
 	}
 	return extract(tarball, path.Join("package", n.file))

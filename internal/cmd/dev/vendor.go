@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 // manifest lists the front-end assets copied into the repository and where
@@ -43,28 +44,45 @@ type asset struct {
 	File    string `json:"file,omitempty"`
 }
 
+// release is the current release of an asset at its source. Ref is whatever
+// the source needs to fetch that release again.
+type release struct {
+	Version   string
+	Ref       string
+	Published time.Time
+}
+
 // source resolves the current release of an asset and fetches a verified copy
-// of its file. ref is whatever the source needs to fetch that release again.
+// of its file.
 type source interface {
-	latest(ctx context.Context, client *http.Client) (version, ref string, err error)
+	latest(ctx context.Context, client *http.Client) (release, error)
 	fetch(ctx context.Context, client *http.Client, ref string) (data []byte, err error)
 }
 
-const defaultManifest = "internal/web/static/vendor.json"
+const (
+	defaultManifest = "internal/web/static/vendor.json"
+	// defaultCooldown is how long a release must have been public before
+	// -update installs it, so a compromised publish has time to be noticed and
+	// pulled. Matches npm's min-release-age practice and prov's cooldown_days.
+	defaultCooldown = 7 * 24 * time.Hour
+)
 
 // vendor compares each vendored asset with its source's current release. With
-// -update it fetches, verifies and installs newer releases and records them in
-// the manifest.
+// -update it fetches, verifies and installs releases older than the cooldown
+// and records them in the manifest.
 func vendor(ctx context.Context, args []string, stdout, stderr io.Writer) error {
 	fs := flag.NewFlagSet("dev vendor", flag.ContinueOnError)
 	fs.SetOutput(stderr)
 	update := fs.Bool("update", false, "download and install newer versions")
+	force := fs.Bool("force", false, "with -update, install releases still in the cooldown")
+	cooldown := fs.Duration("cooldown", defaultCooldown, "minimum age of a release before -update installs it")
 	manifestPath := fs.String("manifest", defaultManifest, "manifest to read")
 	github := fs.String("github", "https://api.github.com", "GitHub API base URL")
 	npm := fs.String("npm", "https://registry.npmjs.org", "npm registry base URL")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
+	now := time.Now()
 
 	m, err := readManifest(*manifestPath)
 	if err != nil {
@@ -78,17 +96,21 @@ func vendor(ctx context.Context, args []string, stdout, stderr io.Writer) error 
 		if err != nil {
 			return err
 		}
-		version, ref, err := src.latest(ctx, client)
+		rel, err := src.latest(ctx, client)
 		if err != nil {
 			return fmt.Errorf("%s: %w", a.Name, err)
 		}
+		age := now.Sub(rel.Published)
 		switch {
-		case version == a.Version:
+		case rel.Version == a.Version:
 			err = report(stdout, a, "%s current", a.Version)
+		case age < *cooldown && !*force:
+			err = report(stdout, a, "%s -> %s released %s ago, in cooldown for %s more", a.Version, rel.Version,
+				days(age), days(*cooldown-age+24*time.Hour-time.Nanosecond))
 		case !*update:
-			err = report(stdout, a, "%s -> %s available", a.Version, version)
+			err = report(stdout, a, "%s -> %s available, released %s ago", a.Version, rel.Version, days(age))
 		default:
-			err = install(ctx, client, src, a, filepath.Dir(*manifestPath), version, ref, stdout)
+			err = install(ctx, client, src, a, filepath.Dir(*manifestPath), rel, stdout)
 			changed = true
 		}
 		if err != nil {
@@ -103,22 +125,31 @@ func vendor(ctx context.Context, args []string, stdout, stderr io.Writer) error 
 
 // install fetches a verified copy of the release, writes it next to the
 // manifest and updates the asset's record.
-func install(ctx context.Context, client *http.Client, src source, a *asset, dir, version, ref string, stdout io.Writer) error {
-	data, err := src.fetch(ctx, client, ref)
+func install(ctx context.Context, client *http.Client, src source, a *asset, dir string, rel release, stdout io.Writer) error {
+	data, err := src.fetch(ctx, client, rel.Ref)
 	if err != nil {
-		return fmt.Errorf("%s %s: %w", a.Name, version, err)
+		return fmt.Errorf("%s %s: %w", a.Name, rel.Version, err)
 	}
 	if err := writeAtomic(filepath.Join(dir, a.Dest), data); err != nil {
 		return err
 	}
-	if err := report(stdout, a, "%s -> %s installed", a.Version, version); err != nil {
+	if err := report(stdout, a, "%s -> %s installed", a.Version, rel.Version); err != nil {
 		return err
 	}
-	a.Version = version
+	a.Version = rel.Version
 	if a.Source == "github" {
 		a.Blob = blobHash(data)
 	}
 	return nil
+}
+
+// days renders a duration in whole days, rounded down.
+func days(d time.Duration) string {
+	n := int(d / (24 * time.Hour))
+	if n == 1 {
+		return "1 day"
+	}
+	return fmt.Sprintf("%d days", n)
 }
 
 // report writes one status line; npm-sourced assets are marked so the

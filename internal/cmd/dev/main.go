@@ -4,7 +4,7 @@
 // Usage:
 //
 //	dev gencheck <pattern>...   fail when generated files are behind their sources
-//	dev vendor [-update]        report or refresh the vendored front-end assets
+//	dev vendor [-update] [-force]  report or refresh the vendored front-end assets
 package main
 
 import (
