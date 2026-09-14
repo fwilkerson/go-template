@@ -13,6 +13,8 @@
       "Bash(go generate *)",
       "Bash(templ *)",
       "Bash(tailwindcss *)",
+      "Bash(curl *localhost*)",
+      "Bash(curl *127.0.0.1*)",
       "Bash(git add -A*)",
       "Bash(git add --all*)",
       "Bash(git commit -a *)",

@@ -22,6 +22,9 @@
 - `internal/arch` is the test that decides which kinds of package may import which and which names are refused. Read it
   before adding a package; extend it when the layout gains a rule.
 - Tests beside the code in an external `_test` package unless they need unexported access; fixtures in `testdata/`.
+- Checks over HTTP are `.http` requests with assertions beside the binary in `cmd/<name>/`, run by `just e2e` and by
+  GoLand. Add a request there instead of calling the server by hand: it is the record of what was verified and keeps
+  running after you.
 - Web UI is templ pages and htmx fragments styled with Tailwind, with Alpine for client-only state. `*_templ.go` and
   `static/app.css` are generated: edit the `.templ` or `tailwind.css` source and run `just gen`. htmx and Alpine are
   vendored under `static/` and listed in `vendor.json`; `just vendor` reports newer releases and `just vendor -update`

@@ -40,5 +40,9 @@ gen-check:
 vendor *args:
     @just dev vendor {{ args }}
 
+# Run the .http checks in cmd/server against a freshly built server; `-addr host:port` targets a running one
+e2e *args:
+    @just dev e2e {{ args }}
+
 # Everything that must pass before finishing or committing
-check: lint (fix "-diff") gen-check test
+check: lint (fix "-diff") gen-check test e2e

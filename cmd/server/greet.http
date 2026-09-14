@@ -1,0 +1,63 @@
+# End-to-end checks for the greet feature.
+#
+# `just e2e` builds this server, starts it on a free port and runs every .http
+# file beside it, setting {{host}}. GoLand runs a request from the gutter
+# with the "dev" environment selected (http-client.env.json) against a server
+# started by hand. Every request needs a handler with at least one assertion;
+# the assertion subset both runners understand is listed in
+# internal/cmd/dev/assert.go.
+
+### The page renders with its form
+GET {{host}}/
+
+> {%
+client.test("page renders", () => {
+    client.assert(response.status === 200, "status");
+    client.assert(response.contentType.mimeType === "text/html", "content type");
+    client.assert(response.body.includes('hx-post="/greet"'), "form posts through htmx");
+});
+%}
+
+### Greeting the given name
+POST {{host}}/greet
+Content-Type: application/x-www-form-urlencoded
+
+name=Go
+
+> {%
+client.test("greets by name", () => {
+    client.assert(response.status === 200, "status");
+    client.assert(response.body.includes("Hello, Go!"), "greeting names Go");
+});
+%}
+
+### An empty name greets the world
+POST {{host}}/greet
+Content-Type: application/x-www-form-urlencoded
+
+name=
+
+> {%
+client.test("greets the world", () => {
+    client.assert(response.body.includes("Hello, world!"), "fallback greeting");
+});
+%}
+
+### The fragment only accepts POST
+GET {{host}}/greet
+
+> {%
+client.test("fragment is post-only", () => {
+    client.assert(response.status === 405, "method not allowed");
+});
+%}
+
+### Static assets are served with caching headers absent
+GET {{host}}/static/app.css
+
+> {%
+client.test("stylesheet is served", () => {
+    client.assert(response.status === 200, "status");
+    client.assert(response.contentType.mimeType === "text/css", "content type");
+});
+%}
