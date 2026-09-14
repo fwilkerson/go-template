@@ -22,7 +22,15 @@
       "Bash(git commit -am *)",
       "Bash(git commit --all*)",
       "Bash(git push --force *)",
-      "Bash(git push -f *)"
+      "Bash(git push -f *)",
+      "Artifact",
+      "Workflow",
+      "ScheduleWakeup",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "RemoteTrigger",
+      "ListAgents"
     ]
   },
   "attribution": {
