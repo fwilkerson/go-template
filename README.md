@@ -6,10 +6,10 @@ Tooling and agent setup for a solo Go project worked on with GoLand and Claude C
 
 | File                             | Purpose                                                                                                               |
 | -------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `justfile`                       | The one set of task commands used by you, lefthook and Claude Code                                                    |
+| `justfile`                       | The one set of task commands used by you, lefthook and Claude Code; `just gen` runs templ and Tailwind                |
 | `.golangci.yml`                  | Correctness linters (`standard` + `errorlint`, `bodyclose`, `nilerr`) and formatters (`gofumpt`, `goimports`)         |
 | `dprint.json`                    | Markdown formatting: 120-column lines, always wrapped                                                                 |
-| `lefthook.yml`                   | Pre-commit: format staged Go and Markdown files, then `just check`                                                    |
+| `lefthook.yml`                   | Pre-commit: format staged Go, templ and Markdown files, then `just check`                                             |
 | `cmd/server`, `internal/`        | Example app: thin `main`, the `internal/greet` feature with its page, fragment and logic, the `internal/web` shell    |
 | `internal/web/static/`           | Vendored htmx and Alpine, plus the Tailwind build from `tailwind.css`                                                 |
 | `.claude/settings.json`          | Allows `just` and `go doc`, denies the bare tools `just` wraps, turns off commit attribution, registers the Stop hook |
@@ -23,8 +23,10 @@ Tooling and agent setup for a solo Go project worked on with GoLand and Claude C
 - **Modernization:** `go fix` (in `just check`) and GoLand's native inspections. `modernize` is left out of
   golangci-lint so the two don't lag or double-report.
 - **Correctness:** golangci-lint, run by `just check` and shown in GoLand.
-- **Formatting:** golangci-lint's formatters for Go and dprint for Markdown, at Stop and pre-commit only, never after
-  each edit.
+- **Formatting:** golangci-lint's formatters for Go, `templ fmt` for templates and dprint for Markdown, at Stop and
+  pre-commit only, never after each edit.
+- **Generated files:** `*_templ.go` and `static/app.css` are committed so `go build` works from a clean checkout; `just
+  gen` rebuilds them.
 - **Agent feedback:** GoLand's MCP server (`lint_files`) while the IDE is open; the Stop hook otherwise.
 
 ## Machine setup (once)

@@ -5,6 +5,10 @@ pre-commit:
       glob: "*.go"
       run: golangci-lint fmt {staged_files}
       stage_fixed: true
+    - name: fmt-templ
+      glob: "*.templ"
+      run: templ fmt {staged_files}
+      stage_fixed: true
     - name: fmt-markdown
       glob: "*.md"
       run: dprint fmt {staged_files}

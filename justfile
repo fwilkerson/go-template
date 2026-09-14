@@ -4,14 +4,20 @@
 default:
     @just --list
 
-# Format Go and Markdown
+# Regenerate templ output and the Tailwind stylesheet
+gen:
+    go generate ./...
+
+# Format Go, templ and Markdown
 fmt:
     golangci-lint fmt
+    templ fmt .
     dprint fmt
 
-# Lint Go with golangci-lint and check formatting drift in Go and Markdown
+# Lint Go with golangci-lint and check formatting drift in Go, templ and Markdown
 lint:
     golangci-lint run
+    templ fmt -fail .
     dprint check
 
 # Run tests; extra args pass through, e.g. `just test -run TestName`
