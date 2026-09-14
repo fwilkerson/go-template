@@ -29,7 +29,8 @@ import (
 //   - internal/<feature>  a package that exports Routes; it takes a *http.ServeMux
 //     and imports the shell and concept packages, never another feature.
 //   - internal/<concept>  any other internal package; imports neither features nor the shell.
-//   - internal/cmd/<tool> repository tooling; imports no other internal package.
+//   - internal/dev/...    repository tooling and the tests that hold the layout and
+//     guidance to their rules; imports no application package, and none imports it.
 //
 // Package names are not what the rules key on, so a feature can be called
 // anything; registering routes is what makes it a feature.
@@ -61,7 +62,6 @@ const (
 	feature
 	concept
 	tool
-	arch
 )
 
 func TestLayout(t *testing.T) {
@@ -98,6 +98,9 @@ func TestLayout(t *testing.T) {
 
 // violation says why a package of kind from may not import one of kind to.
 func violation(from, to kind) string {
+	if to == tool && from != tool {
+		return "application code does not import repository tooling"
+	}
 	switch from {
 	case shellPkg:
 		return "the shell imports no other internal package"
@@ -110,7 +113,9 @@ func violation(from, to kind) string {
 			return "concept packages import neither features nor the shell"
 		}
 	case tool:
-		return "repository tooling imports no other internal package"
+		if to != tool {
+			return "repository tooling imports no application package"
+		}
 	}
 	return ""
 }
@@ -119,13 +124,11 @@ func classify(t *testing.T, module string, p pkg) kind {
 	t.Helper()
 	rel := strings.TrimPrefix(p.ImportPath, module+"/")
 	switch {
-	case rel == "internal/arch":
-		return arch
 	case strings.HasPrefix(rel, "cmd/"):
 		return binary
 	case rel == shell:
 		return shellPkg
-	case strings.HasPrefix(rel, "internal/cmd/"):
+	case rel == "internal/dev" || strings.HasPrefix(rel, "internal/dev/"):
 		return tool
 	case strings.HasPrefix(rel, "internal/"):
 		fn := routesFunc(t, p)
@@ -301,6 +304,7 @@ func TestViolation(t *testing.T) {
 		{feature, shellPkg},
 		{feature, concept},
 		{concept, concept},
+		{tool, tool},
 	}
 	for _, c := range allowed {
 		if v := violation(c.from, c.to); v != "" {
@@ -315,6 +319,10 @@ func TestViolation(t *testing.T) {
 		{concept, shellPkg},
 		{tool, shellPkg},
 		{tool, concept},
+		{tool, feature},
+		{binary, tool},
+		{feature, tool},
+		{concept, tool},
 	}
 	for _, c := range denied {
 		if violation(c.from, c.to) == "" {

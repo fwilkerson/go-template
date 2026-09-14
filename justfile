@@ -34,7 +34,7 @@ fix *args:
 
 # Run the repository's management tool, e.g. `just dev vendor -update`
 dev *args:
-    go run ./internal/cmd/dev {{ args }}
+    go run ./internal/dev {{ args }}
 
 # Fail when generated files are behind their sources; leaves them regenerated
 gen-check:

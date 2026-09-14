@@ -1,5 +1,7 @@
 // Command dev is the repository's management tool. justfile recipes call it
-// for anything that needs more than a single command.
+// for anything that needs more than a single command. Its subpackages hold
+// the tests that keep the layout and the agent guidance to their rules; the
+// arch test keeps application code from importing any of it.
 //
 // Usage:
 //

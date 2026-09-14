@@ -5,7 +5,7 @@
 # with the "dev" environment selected (http-client.env.json) against a server
 # started by hand. Every request needs a handler with at least one assertion;
 # the assertion subset both runners understand is listed in
-# internal/cmd/dev/assert.go.
+# internal/dev/assert.go.
 
 ### The page renders with its form
 GET {{host}}/

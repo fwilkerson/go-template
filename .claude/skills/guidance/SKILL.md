@@ -13,14 +13,14 @@ needs to be prose at all.
 
 Take the first row that fits:
 
-| The rule is about                        | Put it in                                             |
-| ---------------------------------------- | ----------------------------------------------------- |
-| The shape of code                        | `.golangci.yml`, `dprint.json`, `go fix`              |
-| An invariant of the repository           | A test, like `internal/arch` or `internal/guidance`   |
-| A command that may or may not be run     | `permissions` in `.claude/settings.json`              |
-| Something that happens at a fixed moment | A hook in `settings.json` or `lefthook.yml`           |
-| A sequence run the same way every time   | A `just` recipe, with any logic in `internal/cmd/dev` |
-| A judgment call: what to prefer, and why | Prose, as below                                       |
+| The rule is about                        | Put it in                                                   |
+| ---------------------------------------- | ----------------------------------------------------------- |
+| The shape of code                        | `.golangci.yml`, `dprint.json`, `go fix`                    |
+| An invariant of the repository           | A test, like `internal/dev/arch` or `internal/dev/guidance` |
+| A command that may or may not be run     | `permissions` in `.claude/settings.json`                    |
+| Something that happens at a fixed moment | A hook in `settings.json` or `lefthook.yml`                 |
+| A sequence run the same way every time   | A `just` recipe, with any logic in `internal/dev`           |
+| A judgment call: what to prefer, and why | Prose, as below                                             |
 
 A mechanism replaces prose: delete the sentence it makes redundant.
 
@@ -28,11 +28,12 @@ A mechanism replaces prose: delete the sentence it makes redundant.
 
 - **Put it where it is read.** CLAUDE.md and template.md hold only what every task needs. A skill loads when its
   description matches the task, so task-specific procedure goes there, with a description in the words a task would use.
-  `internal/guidance` fails when the always-loaded set outgrows its budget; move something out rather than raising it.
+  `internal/dev/guidance` fails when the always-loaded set outgrows its budget; move something out rather than raising
+  it.
 - **Say what to do and why.** One reason lets the model generalize; a bare rule is followed literally and only where it
   was written. "Verify APIs with `go doc`, since recent additions are not in memory" beats "use `go doc`".
 - **Describe the situation, not the emphasis.** Current models over-trigger on capitals, bold commands and repetition.
-  State when the rule applies, once, in a normal register. `internal/guidance` refuses shouting.
+  State when the rule applies, once, in a normal register. `internal/dev/guidance` refuses shouting.
 - **Show the shape when the shape matters.** One realistic example in `<example>` tags, with a sentence on why it is
   right, steers format and tone better than a paragraph describing it.
 - **Prefer the goal to the step list.** Numbered steps only where order or completeness matters; otherwise give the goal

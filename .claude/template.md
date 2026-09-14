@@ -8,8 +8,8 @@
 - `go fix` enforces most modern idioms. It cannot enforce these, so prefer them when writing new code:
   - `encoding/json/v2` for new JSON code (Go 1.27+); leave existing `encoding/json` code alone unless asked to migrate.
   - Method and wildcard patterns on `http.ServeMux` with `r.PathValue` (Go 1.22+) and the standard library `uuid`
-    package (Go 1.27+). `internal/arch` requires `Routes` to take a `*http.ServeMux` and refuses third-party packages
-    named for one the standard library now has.
+    package (Go 1.27+). `internal/dev/arch` requires `Routes` to take a `*http.ServeMux` and refuses third-party
+    packages named for one the standard library now has.
   - `cmp.Or` for fallback chains; `slices` and `maps` helpers instead of hand-written loops.
   - `errors.Join`, `context.WithCancelCause` and `context.Cause` when errors or cancellation reasons need to be combined
     or inspected.
@@ -20,8 +20,8 @@
 - Everything else under `internal/`, one package per feature holding its types, logic, storage, handlers and templates.
   A feature exposes `Routes(mux *http.ServeMux)` and `main` mounts it. `internal/web` is the shell: layout, static
   assets and middleware. A type two features need moves to a package named for the concept.
-- `internal/arch` is the test that decides which kinds of package may import which, which package names are refused and
-  where the standard library must be used over a third-party module. Read it before adding a package or dependency;
+- `internal/dev/arch` is the test that decides which kinds of package may import which, which package names are refused
+  and where the standard library must be used over a third-party module. Read it before adding a package or dependency;
   extend it when the layout gains a rule.
 - Tests beside the code in an external `_test` package unless they need unexported access; fixtures in `testdata/`.
 - Checks over HTTP are `.http` requests with assertions beside the binary in `cmd/<name>/`, run by `just e2e` and by
@@ -39,7 +39,7 @@ Run every build, test, lint and format step through `just`: the recipes carry th
 and `just --list` describes every recipe.
 
 - A recipe is a list of commands. Anything that needs a variable, a condition or a loop is a subcommand of the
-  management tool in `internal/cmd/dev`, run as `just dev <command>`.
+  management tool in `internal/dev`, run as `just dev <command>`.
 - `just check` passes before you finish.
 
 ## GoLand
