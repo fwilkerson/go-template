@@ -4,24 +4,24 @@ Tooling and agent setup for a solo Go project worked on with GoLand and Claude C
 
 ## What's in it
 
-| File                               | Purpose                                                                                                                                              |
-| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `justfile`                         | The one set of task commands used by you, lefthook and Claude Code; `just gen` runs templ and Tailwind                                               |
-| `.golangci.yml`                    | Correctness linters (`standard` + `errorlint`, `bodyclose`, `nilerr`) and formatters (`gofumpt`, `goimports`)                                        |
-| `dprint.json`                      | Markdown formatting: 120-column lines, always wrapped                                                                                                |
-| `.gitattributes`                   | Marks generated and vendored files so GitHub collapses their diffs and skips them in language stats                                                  |
-| `lefthook.yml`                     | Pre-commit: format staged Go, templ and Markdown files, then `just check`                                                                            |
-| `cmd/server`, `internal/`          | Example app: thin `main` with its `.http` checks beside it, the `internal/greet` feature with its page, fragment and logic, the `internal/web` shell |
-| `internal/web/static/`             | Vendored htmx and Alpine with their versions in `vendor.json`, plus the Tailwind build from `tailwind.css`                                           |
-| `internal/arch`                    | Test that enforces the layout: which kinds of package may import which, and forbidden package names                                                  |
-| `internal/guidance`                | Test that keeps agent guidance small: a word budget for what Claude reads every turn, skill frontmatter, no shouting                                 |
-| `internal/cmd/dev`                 | Management tool behind `just gen-check`, `just vendor` and `just e2e`; recipes stay single commands, logic lives here                                |
-| `.claude/settings.json`            | Allows `just` and `go doc`, denies the bare tools `just` wraps and `curl`, turns off commit attribution, registers the Stop hook                     |
-| `.claude/hooks/stop-check.sh`      | When Go files changed, runs `just fmt check` before Claude finishes and sends failures back to it                                                    |
-| `.claude/skills/commit/SKILL.md`   | Commit conventions: atomic Conventional Commits, no rework commits in history                                                                        |
-| `.claude/skills/guidance/SKILL.md` | How to write instructions for Claude: prefer a lint, test, hook or recipe; where prose goes and how it reads                                         |
-| `.claude/template.md`              | Go and task guidance for Claude, imported from `CLAUDE.md`                                                                                           |
-| `CLAUDE.md`                        | Project notes; keep project-specific content here, not in `template.md`                                                                              |
+| File                               | Purpose                                                                                                                                                |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `justfile`                         | The one set of task commands used by you, lefthook and Claude Code; `just gen` runs templ and Tailwind                                                 |
+| `.golangci.yml`                    | Correctness linters (`standard` + `errorlint`, `bodyclose`, `nilerr`) and formatters (`gofumpt`, `goimports`)                                          |
+| `dprint.json`                      | Markdown formatting: 120-column lines, always wrapped                                                                                                  |
+| `.gitattributes`                   | Marks generated and vendored files so GitHub collapses their diffs and skips them in language stats                                                    |
+| `lefthook.yml`                     | Pre-commit: format staged Go, templ and Markdown files, then `just check`                                                                              |
+| `cmd/server`, `internal/`          | Example app: thin `main` with its `.http` checks beside it, the `internal/greet` feature with its page, fragment and logic, the `internal/web` shell   |
+| `internal/web/static/`             | Vendored htmx and Alpine with their versions in `vendor.json`, plus the Tailwind build from `tailwind.css`                                             |
+| `internal/arch`                    | Test that enforces the layout: which kinds of package may import which, forbidden package names, and the standard library over the modules it replaced |
+| `internal/guidance`                | Test that keeps agent guidance small: a word budget for what Claude reads every turn, skill frontmatter, no shouting                                   |
+| `internal/cmd/dev`                 | Management tool behind `just gen-check`, `just vendor` and `just e2e`; recipes stay single commands, logic lives here                                  |
+| `.claude/settings.json`            | Allows `just` and `go doc`; denies the bare tools `just` wraps, `curl` and the git commands the commit skill steers away from; registers the Stop hook |
+| `.claude/hooks/stop-check.sh`      | When a source `just check` covers changed, runs `just fmt check` before Claude finishes and sends failures back to it                                  |
+| `.claude/skills/commit/SKILL.md`   | Commit conventions: atomic Conventional Commits, no rework commits in history                                                                          |
+| `.claude/skills/guidance/SKILL.md` | How to write instructions for Claude: prefer a lint, test, hook or recipe; where prose goes and how it reads                                           |
+| `.claude/template.md`              | Go and task guidance for Claude, imported from `CLAUDE.md`                                                                                             |
+| `CLAUDE.md`                        | Project notes; keep project-specific content here, not in `template.md`                                                                                |
 
 ### Who checks what
 
@@ -65,9 +65,5 @@ Tooling and agent setup for a solo Go project worked on with GoLand and Claude C
 2. Set the module path in `go.mod` and rename `cmd/server` to the binary's name. Keep `internal/web` for a web app and
    delete it otherwise; `internal/greet` is a placeholder for the first feature.
 3. Put the project's name and notes in `CLAUDE.md`, keeping the `@.claude/template.md` import.
-4. Install the git hooks. The global git config points `core.hooksPath` at an empty directory, so the repo sets its own
-   path. Lefthook still sees the global setting and refuses, so `--force` is needed; it installs into the local path.
-   ```sh
-   git config --local core.hooksPath "$PWD/.git/hooks"
-   lefthook install --force
-   ```
+4. Install the git hooks with `lefthook install`. If git's `core.hooksPath` is set anywhere, lefthook refuses to sync;
+   `lefthook install --reset-hooks-path` clears the setting and installs.
