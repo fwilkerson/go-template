@@ -28,13 +28,17 @@ test *args:
 fix *args:
     go fix {{ args }} ./...
 
-# Run the repository's management tool
+# Run the repository's management tool, e.g. `just dev vendor -update`
 dev *args:
     go run ./internal/cmd/dev {{ args }}
 
 # Fail when generated files are behind their sources; leaves them regenerated
 gen-check:
     @just dev gencheck '*_templ.go' '**/static/app.css'
+
+# Report vendored front-end assets with a newer release; `-update` installs them
+vendor *args:
+    @just dev vendor {{ args }}
 
 # Everything that must pass before finishing or committing
 check: lint (fix "-diff") gen-check test

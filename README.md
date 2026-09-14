@@ -12,8 +12,8 @@ Tooling and agent setup for a solo Go project worked on with GoLand and Claude C
 | `.gitattributes`                 | Marks generated and vendored files so GitHub collapses their diffs and skips them in language stats                   |
 | `lefthook.yml`                   | Pre-commit: format staged Go, templ and Markdown files, then `just check`                                             |
 | `cmd/server`, `internal/`        | Example app: thin `main`, the `internal/greet` feature with its page, fragment and logic, the `internal/web` shell    |
-| `internal/web/static/`           | Vendored htmx and Alpine, plus the Tailwind build from `tailwind.css`                                                 |
-| `internal/cmd/dev`               | Management tool behind `just gen-check`; recipes stay single commands, logic lives here                               |
+| `internal/web/static/`           | Vendored htmx and Alpine with their versions in `vendor.json`, plus the Tailwind build from `tailwind.css`            |
+| `internal/cmd/dev`               | Management tool behind `just gen-check` and `just vendor`; recipes stay single commands, logic lives here             |
 | `.claude/settings.json`          | Allows `just` and `go doc`, denies the bare tools `just` wraps, turns off commit attribution, registers the Stop hook |
 | `.claude/hooks/stop-check.sh`    | When Go files changed, runs `just fmt check` before Claude finishes and sends failures back to it                     |
 | `.claude/skills/commit/SKILL.md` | Commit conventions: atomic Conventional Commits, no rework commits in history                                         |
@@ -29,6 +29,11 @@ Tooling and agent setup for a solo Go project worked on with GoLand and Claude C
   pre-commit only, never after each edit.
 - **Generated files:** `*_templ.go` and `static/app.css` are committed so `go build` works from a clean checkout. `just
   check` regenerates them and fails on drift.
+- **Vendored assets:** `just vendor` resolves each entry in `vendor.json` against its source and `-update` installs
+  newer releases. GitHub sources take the file from the repository at the latest release tag, verified by git blob hash,
+  and record that hash. npm sources exist for projects that commit no built file (Alpine); they download the package
+  tarball and verify the registry's sha512. The report marks npm-sourced assets. Unauthenticated GitHub API calls are
+  limited to 60 an hour; `GITHUB_TOKEN` lifts that.
 - **Agent feedback:** GoLand's MCP server (`lint_files`) while the IDE is open; the Stop hook otherwise.
 
 ## Machine setup (once)

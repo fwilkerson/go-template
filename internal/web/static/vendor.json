@@ -1,0 +1,22 @@
+{
+  "assets": [
+    {
+      "name": "htmx",
+      "source": "github",
+      "dest": "htmx.min.js",
+      "version": "4.0.0",
+      "repo": "bigskysoftware/htmx",
+      "path": "dist/htmx.min.js",
+      "blob": "6e099f1d3bfc5362b6f419919bceb522ca80d5fa"
+    },
+    {
+      "name": "alpine",
+      "source": "npm",
+      "dest": "alpine.min.js",
+      "version": "3.17.2",
+      "package": "alpinejs",
+      "tag": "latest",
+      "file": "dist/cdn.min.js"
+    }
+  ]
+}

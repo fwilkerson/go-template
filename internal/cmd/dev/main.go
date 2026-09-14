@@ -4,6 +4,7 @@
 // Usage:
 //
 //	dev gencheck <pattern>...   fail when generated files are behind their sources
+//	dev vendor [-update]        report or refresh the vendored front-end assets
 package main
 
 import (
@@ -25,15 +26,17 @@ func main() {
 	}
 }
 
-var errUsage = errors.New("usage: dev gencheck [args]")
+var errUsage = errors.New("usage: dev <gencheck|vendor> [args]")
 
-func run(ctx context.Context, args []string, stdout, _ io.Writer) error {
+func run(ctx context.Context, args []string, stdout, stderr io.Writer) error {
 	if len(args) == 0 {
 		return errUsage
 	}
 	switch args[0] {
 	case "gencheck":
 		return gencheck(ctx, args[1:], stdout)
+	case "vendor":
+		return vendor(ctx, args[1:], stdout, stderr)
 	}
 	return fmt.Errorf("unknown command %q: %w", args[0], errUsage)
 }

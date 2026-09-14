@@ -28,7 +28,9 @@
   `testdata/`.
 - Web UI is templ pages and htmx fragments styled with Tailwind, with Alpine for client-only state. `*_templ.go` and
   `static/app.css` are generated: edit the `.templ` or `tailwind.css` source and run `just gen`. htmx and Alpine are
-  vendored under `static/`.
+  vendored under `static/` and listed in `vendor.json`; `just vendor` reports newer releases and `just vendor -update`
+  installs them. Source new assets from GitHub releases rather than npm: the npm registry has been the vector for a run
+  of supply chain attacks, so it is used only when a project commits no built file.
 
 ## Tasks
 
