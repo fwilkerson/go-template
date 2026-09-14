@@ -35,6 +35,8 @@
 Run every build, test, lint and format step through `just`: the recipes carry the flags and ordering the project needs,
 and `just --list` describes every recipe.
 
+- A recipe is a list of commands. Anything that needs a variable, a condition or a loop is a subcommand of the
+  management tool in `internal/cmd/dev`, run as `just dev <command>`.
 - `just check` passes before you finish.
 
 ## GoLand

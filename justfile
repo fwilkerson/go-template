@@ -28,5 +28,13 @@ test *args:
 fix *args:
     go fix {{ args }} ./...
 
+# Run the repository's management tool
+dev *args:
+    go run ./internal/cmd/dev {{ args }}
+
+# Fail when generated files are behind their sources; leaves them regenerated
+gen-check:
+    @just dev gencheck '*_templ.go' '**/static/app.css'
+
 # Everything that must pass before finishing or committing
-check: lint (fix "-diff") test
+check: lint (fix "-diff") gen-check test
