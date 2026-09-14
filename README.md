@@ -9,6 +9,7 @@ Tooling and agent setup for a solo Go project worked on with GoLand and Claude C
 | `justfile`                       | The one set of task commands used by you, lefthook and Claude Code; `just gen` runs templ and Tailwind                |
 | `.golangci.yml`                  | Correctness linters (`standard` + `errorlint`, `bodyclose`, `nilerr`) and formatters (`gofumpt`, `goimports`)         |
 | `dprint.json`                    | Markdown formatting: 120-column lines, always wrapped                                                                 |
+| `.gitattributes`                 | Marks generated and vendored files so GitHub collapses their diffs and skips them in language stats                   |
 | `lefthook.yml`                   | Pre-commit: format staged Go, templ and Markdown files, then `just check`                                             |
 | `cmd/server`, `internal/`        | Example app: thin `main`, the `internal/greet` feature with its page, fragment and logic, the `internal/web` shell    |
 | `internal/web/static/`           | Vendored htmx and Alpine, plus the Tailwind build from `tailwind.css`                                                 |

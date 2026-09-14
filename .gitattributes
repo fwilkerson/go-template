@@ -1,0 +1,6 @@
+# Generated files: collapsed in GitHub diffs and excluded from language stats.
+*_templ.go linguist-generated=true
+**/static/app.css linguist-generated=true
+
+# Vendored assets: not the project's code.
+**/static/*.min.js linguist-vendored=true
