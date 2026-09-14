@@ -15,17 +15,13 @@
 
 ## Layout
 
-- One `main` package per binary under `cmd/<name>/`. `main` parses arguments, wires dependencies and calls a `run(ctx,
-  args, stdout) error` function; logic lives in packages.
-- Everything else under `internal/`, one package per feature, named for what it provides, holding that feature's types,
-  logic, storage, handlers and templates together. No `pkg/`, `utils`, `common` or `models` packages: a type two
-  features share moves to a small package named for the concept, and interfaces are declared by the package that
-  consumes them.
-- `internal/web` is the shell: page layout, static assets and middleware. Features import it and expose a `Routes(mux
-  *http.ServeMux)` function; `main` mounts them. The shell never imports a feature.
-- Move a package out of `internal/` to a top-level directory only when another module imports it.
-- Tests sit beside the code they test, in an external `_test` package unless they need unexported access. Fixtures go in
-  `testdata/`.
+- Binaries under `cmd/<name>/`: a thin `main` that calls `run(ctx, args, stdout) error`. Logic lives in packages.
+- Everything else under `internal/`, one package per feature holding its types, logic, storage, handlers and templates.
+  A feature exposes `Routes(mux *http.ServeMux)` and `main` mounts it. `internal/web` is the shell: layout, static
+  assets and middleware. A type two features need moves to a package named for the concept.
+- `internal/arch` is the test that decides which kinds of package may import which and which names are refused. Read it
+  before adding a package; extend it when the layout gains a rule.
+- Tests beside the code in an external `_test` package unless they need unexported access; fixtures in `testdata/`.
 - Web UI is templ pages and htmx fragments styled with Tailwind, with Alpine for client-only state. `*_templ.go` and
   `static/app.css` are generated: edit the `.templ` or `tailwind.css` source and run `just gen`. htmx and Alpine are
   vendored under `static/` and listed in `vendor.json`; `just vendor` reports newer releases and `just vendor -update`

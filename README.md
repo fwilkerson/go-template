@@ -13,6 +13,7 @@ Tooling and agent setup for a solo Go project worked on with GoLand and Claude C
 | `lefthook.yml`                   | Pre-commit: format staged Go, templ and Markdown files, then `just check`                                             |
 | `cmd/server`, `internal/`        | Example app: thin `main`, the `internal/greet` feature with its page, fragment and logic, the `internal/web` shell    |
 | `internal/web/static/`           | Vendored htmx and Alpine with their versions in `vendor.json`, plus the Tailwind build from `tailwind.css`            |
+| `internal/arch`                  | Test that enforces the layout: which kinds of package may import which, and forbidden package names                   |
 | `internal/cmd/dev`               | Management tool behind `just gen-check` and `just vendor`; recipes stay single commands, logic lives here             |
 | `.claude/settings.json`          | Allows `just` and `go doc`, denies the bare tools `just` wraps, turns off commit attribution, registers the Stop hook |
 | `.claude/hooks/stop-check.sh`    | When Go files changed, runs `just fmt check` before Claude finishes and sends failures back to it                     |
