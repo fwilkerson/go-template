@@ -24,6 +24,10 @@ lint:
 test *args:
     go test ./... {{ args }}
 
+# Tidy go.mod and go.sum; `-diff` only reports
+tidy *args:
+    go mod tidy {{ args }}
+
 # Apply go fix modernizers (run after bumping the go directive); `-diff` only reports
 fix *args:
     go fix {{ args }} ./...
@@ -45,4 +49,4 @@ e2e *args:
     @just dev e2e {{ args }}
 
 # Everything that must pass before finishing or committing
-check: lint (fix "-diff") gen-check test e2e
+check: lint (fix "-diff") (tidy "-diff") gen-check (test "-race") e2e

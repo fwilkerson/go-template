@@ -27,7 +27,8 @@ Tooling and agent setup for a solo Go project worked on with GoLand and Claude C
 
 - **Modernization:** `go fix` (in `just check`) and GoLand's native inspections. `modernize` is left out of
   golangci-lint so the two don't lag or double-report.
-- **Correctness:** golangci-lint, run by `just check` and shown in GoLand.
+- **Correctness:** golangci-lint, run by `just check` and shown in GoLand. Tests run with `-race` there, and `go mod
+  tidy -diff` fails on a stale `go.mod` or `go.sum`.
 - **Formatting:** golangci-lint's formatters for Go, `templ fmt` for templates and dprint for Markdown, at Stop and
   pre-commit only, never after each edit.
 - **Generated files:** `*_templ.go` and `static/app.css` are committed so `go build` works from a clean checkout. `just
