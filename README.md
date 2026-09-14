@@ -10,6 +10,8 @@ Tooling and agent setup for a solo Go project worked on with GoLand and Claude C
 | `.golangci.yml`                  | Correctness linters (`standard` + `errorlint`, `bodyclose`, `nilerr`) and formatters (`gofumpt`, `goimports`)         |
 | `dprint.json`                    | Markdown formatting: 120-column lines, always wrapped                                                                 |
 | `lefthook.yml`                   | Pre-commit: format staged Go and Markdown files, then `just check`                                                    |
+| `cmd/server`, `internal/`        | Example app: thin `main`, the `internal/greet` feature with its page, fragment and logic, the `internal/web` shell    |
+| `internal/web/static/`           | Vendored htmx and Alpine, plus the Tailwind build from `tailwind.css`                                                 |
 | `.claude/settings.json`          | Allows `just` and `go doc`, denies the bare tools `just` wraps, turns off commit attribution, registers the Stop hook |
 | `.claude/hooks/stop-check.sh`    | When Go files changed, runs `just fmt check` before Claude finishes and sends failures back to it                     |
 | `.claude/skills/commit/SKILL.md` | Commit conventions: atomic Conventional Commits, no rework commits in history                                         |
@@ -27,7 +29,8 @@ Tooling and agent setup for a solo Go project worked on with GoLand and Claude C
 
 ## Machine setup (once)
 
-1. Install `golangci-lint`, `just` and `lefthook` (managed with `prov`), and `dprint`.
+1. Install `golangci-lint`, `just`, `lefthook`, `templ` and the standalone `tailwindcss` CLI (managed with `prov`), and
+   `dprint`. The `templ` CLI version must match the `github.com/a-h/templ` version in `go.mod`.
 2. GoLand: **Settings → Tools → Go Linter**: point it at the `golangci-lint` binary and enable using the project config
    file.
 3. GoLand: **Settings → Tools → MCP Server → Clients Auto-Configuration**: Auto-Configure for Claude Code.
@@ -35,8 +38,10 @@ Tooling and agent setup for a solo Go project worked on with GoLand and Claude C
 ## Project setup
 
 1. Copy everything except this README into the project.
-2. Put the project's name and notes in `CLAUDE.md`, keeping the `@.claude/template.md` import.
-3. Install the git hooks. The global git config points `core.hooksPath` at an empty directory, so the repo sets its own
+2. Set the module path in `go.mod` and rename `cmd/server` to the binary's name. Keep `internal/web` for a web app and
+   delete it otherwise; `internal/greet` is a placeholder for the first feature.
+3. Put the project's name and notes in `CLAUDE.md`, keeping the `@.claude/template.md` import.
+4. Install the git hooks. The global git config points `core.hooksPath` at an empty directory, so the repo sets its own
    path. Lefthook still sees the global setting and refuses, so `--force` is needed; it installs into the local path.
    ```sh
    git config --local core.hooksPath "$PWD/.git/hooks"

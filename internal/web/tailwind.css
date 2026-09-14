@@ -1,0 +1,4 @@
+/* Tailwind input; `just gen` builds it into static/app.css. Only templ files
+   are scanned for class names, so vendored scripts cannot add rules. */
+@import "tailwindcss" source(none);
+@source "../**/*.templ";

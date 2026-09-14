@@ -1,0 +1,22 @@
+package web
+
+// Layout is the document every page renders inside. Assets are served from
+// the embedded static directory.
+templ Layout(title string) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			<title>{ title }</title>
+			<link rel="stylesheet" href="/static/app.css"/>
+			<script src="/static/htmx.min.js" defer></script>
+			<script src="/static/alpine.min.js" defer></script>
+		</head>
+		<body class="min-h-screen bg-zinc-50 text-zinc-900">
+			<main class="mx-auto max-w-md space-y-4 p-8">
+				{ children... }
+			</main>
+		</body>
+	</html>
+}

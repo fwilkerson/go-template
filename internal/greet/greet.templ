@@ -1,0 +1,28 @@
+package greet
+
+import "github.com/fwilkerson/go-template/internal/web"
+
+// page is the feature's screen. The form posts through htmx; Alpine drives
+// the client-only toggle.
+templ page() {
+	@web.Layout("go-template") {
+		<div x-data="{ open: true }" class="space-y-4">
+			<h1 class="text-2xl font-semibold">go-template</h1>
+			<button type="button" @click="open = !open" x-text="open ? 'Hide' : 'Show'" class="rounded border border-zinc-300 px-3 py-1 text-sm hover:bg-zinc-100"></button>
+			<form x-show="open" hx-post="/greet" hx-target="#greeting" hx-swap="innerHTML" class="flex gap-2">
+				<input type="text" name="name" placeholder="Name" autocomplete="off" class="flex-1 rounded border border-zinc-300 px-3 py-1"/>
+				<button type="submit" class="rounded bg-zinc-900 px-3 py-1 text-white hover:bg-zinc-700">Greet</button>
+			</form>
+			<p id="greeting" class="text-lg">
+				@greeting("")
+			</p>
+		</div>
+	}
+}
+
+// greeting is the fragment /greet returns; an empty text renders nothing.
+templ greeting(text string) {
+	if text != "" {
+		<strong>{ text }</strong>
+	}
+}
