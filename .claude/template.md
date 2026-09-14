@@ -13,6 +13,23 @@
   - `errors.Join`, `context.WithCancelCause` and `context.Cause` when errors or cancellation reasons need to be combined
     or inspected.
 
+## Layout
+
+- One `main` package per binary under `cmd/<name>/`. `main` parses arguments, wires dependencies and calls a `run(ctx,
+  args, stdout) error` function; logic lives in packages.
+- Everything else under `internal/`, one package per feature, named for what it provides, holding that feature's types,
+  logic, storage, handlers and templates together. No `pkg/`, `utils`, `common` or `models` packages: a type two
+  features share moves to a small package named for the concept, and interfaces are declared by the package that
+  consumes them.
+- `internal/web` is the shell: page layout, static assets and middleware. Features import it and expose a `Routes(mux
+  *http.ServeMux)` function; `main` mounts them. The shell never imports a feature.
+- Move a package out of `internal/` to a top-level directory only when another module imports it.
+- Tests sit beside the code they test, in an external `_test` package unless they need unexported access. Fixtures go in
+  `testdata/`.
+- Web UI is templ pages and htmx fragments styled with Tailwind, with Alpine for client-only state. `*_templ.go` and
+  `static/app.css` are generated: edit the `.templ` or `tailwind.css` source and run `just gen`. htmx and Alpine are
+  vendored under `static/`.
+
 ## Tasks
 
 Run every build, test, lint and format step through `just`: the recipes carry the flags and ordering the project needs,
