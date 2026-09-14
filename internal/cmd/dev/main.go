@@ -5,7 +5,7 @@
 //
 //	dev gencheck <pattern>...   fail when generated files are behind their sources
 //	dev vendor [-update] [-force]  report or refresh the vendored front-end assets
-//	dev e2e [-addr host:port] [file...]  run the .http checks beside cmd/server against it
+//	dev e2e [-addr host:port] [file...]  run the .http checks beside the binary under cmd/
 package main
 
 import (

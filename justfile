@@ -40,7 +40,7 @@ gen-check:
 vendor *args:
     @just dev vendor {{ args }}
 
-# Run the .http checks in cmd/server against a freshly built server; `-addr host:port` targets a running one
+# Run the .http checks beside the binary under cmd/ against a fresh build; `-addr host:port` targets a running one
 e2e *args:
     @just dev e2e {{ args }}
 

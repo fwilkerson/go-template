@@ -26,11 +26,17 @@ import (
 func e2e(ctx context.Context, args []string, stdout, stderr io.Writer) error {
 	fs := flag.NewFlagSet("e2e", flag.ContinueOnError)
 	fs.SetOutput(stderr)
-	server := fs.String("server", "./cmd/server", "package to build and run for the duration of the run")
+	server := fs.String("server", "", "package to build and run for the duration of the run; the only one under cmd/ by default")
 	addr := fs.String("addr", "", "host:port of a running server to target instead of starting one")
 	env := fs.String("env", "dev", "environment to take variables from in http-client.env.json")
 	if err := fs.Parse(args); err != nil {
 		return err
+	}
+	if *server == "" {
+		var err error
+		if *server, err = onlyBinary("cmd"); err != nil {
+			return fmt.Errorf("e2e: %w", err)
+		}
 	}
 	files := fs.Args()
 	if len(files) == 0 {
@@ -77,6 +83,28 @@ func e2e(ctx context.Context, args []string, stdout, stderr io.Writer) error {
 		return fmt.Errorf("e2e: %d assertions failed", failed)
 	}
 	return nil
+}
+
+// onlyBinary returns the single package directory under dir, so the runner
+// finds the project's binary without being told its name.
+func onlyBinary(dir string) (string, error) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return "", err
+	}
+	var dirs []string
+	for _, e := range entries {
+		if e.IsDir() {
+			dirs = append(dirs, "./"+filepath.Join(dir, e.Name()))
+		}
+	}
+	switch len(dirs) {
+	case 0:
+		return "", fmt.Errorf("no package under %s/", dir)
+	case 1:
+		return dirs[0], nil
+	}
+	return "", fmt.Errorf("%d packages under %s/ (%s); pass -server", len(dirs), dir, strings.Join(dirs, ", "))
 }
 
 // reportFile prints one file's failures and its summary line, and returns the

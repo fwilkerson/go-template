@@ -5,6 +5,8 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -84,5 +86,33 @@ func TestLoadEnv(t *testing.T) {
 	}
 	if vars, err := loadEnv("testdata", "dev"); err != nil || len(vars) != 0 {
 		t.Errorf("no env file: %v, %v; want empty", vars, err)
+	}
+}
+
+func TestOnlyBinary(t *testing.T) {
+	t.Parallel()
+
+	root := t.TempDir()
+	if _, err := onlyBinary(root); err == nil {
+		t.Error("onlyBinary: expected an error for an empty directory")
+	}
+	if err := os.MkdirAll(filepath.Join(root, "memo"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "README.md"), nil, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	got, err := onlyBinary(root)
+	if err != nil {
+		t.Fatalf("onlyBinary: %v", err)
+	}
+	if want := "./" + filepath.Join(root, "memo"); got != want {
+		t.Errorf("onlyBinary = %q, want %q", got, want)
+	}
+	if err := os.MkdirAll(filepath.Join(root, "worker"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := onlyBinary(root); err == nil || !strings.Contains(err.Error(), "-server") {
+		t.Errorf("onlyBinary with two packages: err = %v, want a hint to pass -server", err)
 	}
 }

@@ -34,9 +34,10 @@ Tooling and agent setup for a solo Go project worked on with GoLand and Claude C
   check` regenerates them and fails on drift.
 - **HTTP behaviour:** `cmd/server/*.http` are JetBrains HTTP Client files, kept beside the binary they exercise. GoLand
   runs them from the gutter with the `dev` environment; `just e2e` (in `just check`) builds the server, starts it on a
-  free port and runs them with a stdlib runner in `internal/cmd/dev`. The runner accepts the request syntax and the
-  `client.test` / `client.assert` subset listed in `assert.go`, and fails on a request without assertions or on anything
-  outside the subset, so a file that passes here means the same in the IDE. Claude is denied `curl` against localhost; a
+  free port and runs them with a stdlib runner in `internal/cmd/dev`. The runner finds the binary as the only package
+  under `cmd/`, so renaming it needs no configuration. It accepts the request syntax and the `client.test` /
+  `client.assert` subset listed in `assert.go`, and fails on a request without assertions or on anything outside the
+  subset, so a file that passes here means the same in the IDE. Claude is denied `curl` against localhost; a
   verification request goes in a `.http` file instead, where it keeps running.
 - **Vendored assets:** `just vendor` resolves each entry in `vendor.json` against its source and `-update` installs
   newer releases. GitHub sources take the file from the repository at the latest release tag, verified by git blob hash,
